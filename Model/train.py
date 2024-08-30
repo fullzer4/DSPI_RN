@@ -1,12 +1,22 @@
-import tensorflow as tf
-from tensorflowjs.converters import save_keras_model
+import os
+import sys
+import subprocess
 
-model = tf.saved_model.load("path/to/your/saved_model")
+MODEL_MAIN_SCRIPT = "/caminho/para/model_main_tf2.py"
+PIPELINE_CONFIG_PATH = "ssd_mobilenet_v2_coco_2018_03_29/pipeline.config"
+MODEL_DIR = "output_model_directory"
 
-keras_model = tf.keras.models.Model.from_saved_model(model)
-keras_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+if not os.path.exists(MODEL_MAIN_SCRIPT):
+    sys.exit(f"Erro: O script {MODEL_MAIN_SCRIPT} não foi encontrado. Verifique o caminho.")
 
-tmp_dir = "path/to/temp/directory"
-keras_model.save(tmp_dir)
+if not os.path.exists(PIPELINE_CONFIG_PATH):
+    sys.exit(f"Erro: O arquivo de configuração {PIPELINE_CONFIG_PATH} não foi encontrado. Verifique o caminho.")
+    
+train_command = [
+    "python",
+    MODEL_MAIN_SCRIPT,
+    "--model_dir=" + MODEL_DIR,
+    "--pipeline_config_path=" + PIPELINE_CONFIG_PATH,
+]
 
-save_keras_model(keras_model, "path/to/tfjs/model")
+subprocess.run(train_command)

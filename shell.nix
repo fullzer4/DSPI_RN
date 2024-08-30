@@ -5,6 +5,7 @@ pkgs.mkShell {
     nodejs
     yarn
     deno
+    go
     jdk11
     python311
   ];

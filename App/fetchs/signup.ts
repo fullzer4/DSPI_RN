@@ -5,19 +5,22 @@ const fetchSignup = async (
   confirmPassword: string,
 ) => {
   try {
-    const response = await fetch('http://10.0.2.2:8080/auth/email/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      'https://slim-dodo-56-74hqqwt062y1.deno.dev/auth/email/create',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+        body: JSON.stringify({
+          name,
+          email,
+          pass: password,
+          pass2: confirmPassword,
+        }),
       },
-      mode: 'cors',
-      body: JSON.stringify({
-        name,
-        email,
-        pass: password,
-        pass2: confirmPassword,
-      }),
-    });
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

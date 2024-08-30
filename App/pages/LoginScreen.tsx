@@ -1,17 +1,24 @@
 import React, {FC, useEffect, useState} from 'react';
 import {
-  Pressable,
   Text,
   TextInput,
   View,
   useWindowDimensions,
+  TouchableOpacity,
+  Vibration,
 } from 'react-native';
+
+// EXT
 import {RootStackParamList} from '../App';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {RouteProp} from '@react-navigation/native';
+
+// STYLES
 import VStyles from '../styles/pages/vertical/LoginScreen.style';
-import HStyles from '../styles/pages/horizontal/LoginScreen.style';
+//import HStyles from '../styles/pages/horizontal/LoginScreen.style';
+
+// ROUTES
 import fetchLogin from '../fetchs/login';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
@@ -27,9 +34,10 @@ type Props = {
 
 const LoginScreen: FC<Props> = ({navigation}) => {
   const window = useWindowDimensions();
-  const [orientation, setOrientation] = useState('portrait');
+  const [_orientation, setOrientation] = useState('portrait');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [msg, setMsg] = useState('');
 
   useEffect(() => {
     const newOrientation =
@@ -50,124 +58,61 @@ const LoginScreen: FC<Props> = ({navigation}) => {
   };
 
   const login = async () => {
+    setMsg('Carregando');
     const result = await fetchLogin(email, password);
     if (result.includes('error')) {
       console.error(result);
+      setMsg('Tente novamente');
     } else {
-      await AsyncStorage.setItem('@user', 'AtZlwcrrOxPC0zWKlyLIDPvXHj33');
+      await AsyncStorage.setItem('@user', email);
+      Vibration.vibrate(1000);
+      setMsg('');
       navigation.navigate('Home');
     }
   };
 
   return (
-    <View
-      style={
-        orientation === 'portrait' ? VStyles.container : HStyles.container
-      }>
-      <View
-        style={
-          orientation === 'portrait'
-            ? VStyles.titleContainer
-            : HStyles.titleContainer
-        }>
-        <Text
-          style={orientation === 'portrait' ? VStyles.title : HStyles.title}>
-          Libras
-        </Text>
-        <Text
-          style={
-            orientation === 'portrait' ? VStyles.subtitle : HStyles.subtitle
-          }>
-          Champ Robot
-        </Text>
+    <View style={VStyles.container}>
+      <View style={VStyles.firstCont}>
+        <Text style={VStyles.title}>Champ Robot</Text>
+        <Text style={VStyles.subtitle}>Libras</Text>
       </View>
-      <View
-        style={
-          orientation === 'portrait'
-            ? VStyles.formContainer
-            : HStyles.formContainer
-        }>
-        <View
-          style={orientation === 'portrait' ? VStyles.forms : HStyles.forms}>
-          <View
-            style={
-              orientation === 'portrait' ? VStyles.inputBox : HStyles.inputBox
-            }>
-            <Text
-              style={
-                orientation === 'portrait'
-                  ? VStyles.inputLabel
-                  : HStyles.inputLabel
-              }>
-              Email
-            </Text>
-            <TextInput
-              style={orientation === 'portrait' ? VStyles.input : HStyles.input}
-              placeholder="usuario@gmail.com"
-              value={email}
-              onChangeText={handleEmailChange}
-            />
-          </View>
-          <View
-            style={
-              orientation === 'portrait' ? VStyles.inputBox : HStyles.inputBox
-            }>
-            <Text
-              style={
-                orientation === 'portrait'
-                  ? VStyles.inputLabel
-                  : HStyles.inputLabel
-              }>
-              Senha
-            </Text>
-            <TextInput
-              style={orientation === 'portrait' ? VStyles.input : HStyles.input}
-              placeholder="senha"
-              value={password}
-              onChangeText={handlePasswordChange}
-              secureTextEntry={true}
-            />
-          </View>
-          <View
-            style={
-              orientation === 'portrait' ? VStyles.otherBox : HStyles.otherBox
-            }>
-            <Pressable
-              style={
-                orientation === 'portrait'
-                  ? VStyles.registerContainer
-                  : HStyles.registerContainer
-              }
-              onPress={() => goToSignup()}>
-              <Text
-                style={
-                  orientation === 'portrait'
-                    ? VStyles.register
-                    : HStyles.register
-                }>
-                NAO TENHO CADASTRO
-              </Text>
-            </Pressable>
-          </View>
+
+      <View style={VStyles.midContainer}>
+        <View style={VStyles.inpsOut}>
+          <Text style={VStyles.innerTitle}>Email</Text>
+          <TextInput
+            style={VStyles.inp}
+            value={email}
+            onChangeText={handleEmailChange}
+            placeholder="ex@email.com"
+          />
         </View>
+        <View style={VStyles.inpsOut}>
+          <Text style={VStyles.innerTitle}>Senha</Text>
+          <TextInput
+            secureTextEntry={true}
+            style={VStyles.inp}
+            value={password}
+            onChangeText={handlePasswordChange}
+            placeholder="********"
+          />
+        </View>
+        <View style={VStyles.inpsOut}>
+          <TouchableOpacity onPress={() => login()} style={VStyles.bt}>
+            <Text style={VStyles.btin}>Entrar</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text>{msg}</Text>
       </View>
-      <View
-        style={
-          orientation === 'portrait' ? VStyles.loginBox : HStyles.loginBox
-        }>
-        <Pressable
-          style={
-            orientation === 'portrait'
-              ? VStyles.loginContainer
-              : HStyles.loginContainer
-          }
-          onPress={() => login()}>
-          <Text
-            style={orientation === 'portrait' ? VStyles.login : HStyles.login}>
-            Logar
-          </Text>
-        </Pressable>
-      </View>
+
+      <TouchableOpacity
+        style={VStyles.registerOut}
+        onPress={() => goToSignup()}>
+        <Text style={VStyles.registerText1}>Ainda não tem cadastro?</Text>
+        <Text style={VStyles.registerText2}>Clique aqui</Text>
+      </TouchableOpacity>
     </View>
   );
 };
